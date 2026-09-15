@@ -1,0 +1,71 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.5.5'
+    id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'io.awspring.cloud:spring-cloud-aws-dependencies:3.4.0'
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+    implementation 'io.github.wimdeblauwe:error-handling-spring-boot-starter:4.4.0'
+    implementation 'org.apache.commons:commons-imaging:1.0.0-alpha6'
+
+    implementation 'ar.com.hjg:pngj:2.1.0'
+    implementation 'io.v47.jaffree:jaffree:2.1.0'
+
+    runtimeOnly 'org.postgresql:postgresql'
+
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-database-postgresql'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:testcontainers:1.21.4'
+    testImplementation 'org.testcontainers:junit-jupiter:1.21.4'
+    testImplementation 'org.testcontainers:postgresql:1.21.4'
+    testImplementation 'org.testcontainers:localstack:1.21.4'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+
+    if (!System.getenv('DOCKER_HOST') && !System.getProperty('docker.host')) {
+        def macDockerSock = new File(System.getProperty('user.home'), '.docker/run/docker.sock')
+        if (macDockerSock.exists()) {
+            environment 'DOCKER_HOST', "unix://${macDockerSock.absolutePath}"
+        }
+    }
+}
+
+
+
+
+
+

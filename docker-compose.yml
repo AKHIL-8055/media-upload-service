@@ -1,0 +1,54 @@
+services:
+
+  app:
+    build: .
+    container_name: media-upload-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - localstack
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/media_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+
+      SPRING_CLOUD_AWS_REGION_STATIC: us-east-1
+      SPRING_CLOUD_AWS_CREDENTIALS_ACCESS_KEY: test
+      SPRING_CLOUD_AWS_CREDENTIALS_SECRET_KEY: test
+      SPRING_CLOUD_AWS_S3_ENDPOINT: http://localstack:4566
+      SPRING_CLOUD_AWS_S3_PATH_STYLE_ACCESS_ENABLED: "true"
+
+      APP_S3_BUCKET: media-bucket
+      APP_S3_CREATE_BUCKET_ON_STARTUP: "true"
+
+    restart: unless-stopped
+
+
+  localstack:
+    image: localstack/localstack:4.4.0
+    container_name: media-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: s3
+      AWS_DEFAULT_REGION: us-east-1
+    volumes:
+      - ./localstack:/var/lib/localstack
+
+
+  postgres:
+    image: postgres:16
+    container_name: media-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: media_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+
+volumes:
+  postgres_data:
